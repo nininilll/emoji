@@ -53,22 +53,22 @@ export default function HomePage() {
   return (
     <div>
       {/* 欢迎区域 */}
-      <div className="bg-gradient-to-r from-primary-500 to-primary-700 rounded-2xl p-8 mb-8 text-white">
-        <h1 className="text-3xl font-bold mb-3">表情包搬家助手 😎</h1>
-        <p className="text-primary-100 text-lg mb-6">
+      <div className="bg-gradient-to-r from-primary-500 to-primary-700 rounded-2xl p-5 sm:p-8 mb-5 sm:mb-8 text-white">
+        <h1 className="text-xl sm:text-3xl font-bold mb-2 sm:mb-3">表情包搬家助手 😎</h1>
+        <p className="text-primary-100 text-sm sm:text-lg mb-4 sm:mb-6">
           从微信、QQ、微博、抖音导出表情包，批量打包下载，一键分享给好友
         </p>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 bg-white text-primary-600 px-5 py-2.5 rounded-xl font-medium hover:bg-primary-50 transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 bg-white text-primary-600 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm font-medium hover:bg-primary-50 transition-colors"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             创建表情包合集
           </button>
           <Link
             to="/guide"
-            className="flex items-center gap-2 bg-white/20 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-white/30 transition-colors"
+            className="flex items-center gap-1.5 sm:gap-2 bg-white/20 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm font-medium hover:bg-white/30 transition-colors"
           >
             📖 查看搬家教程
           </Link>
@@ -77,8 +77,8 @@ export default function HomePage() {
 
       {/* 创建合集弹窗 */}
       {showCreate && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowCreate(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 sm:p-4" onClick={() => setShowCreate(false)}>
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 w-full sm:max-w-md" onClick={e => e.stopPropagation()}>
             <h2 className="text-xl font-bold mb-4">创建新合集</h2>
             <div className="space-y-4">
               <div>
@@ -124,9 +124,9 @@ export default function HomePage() {
       )}
 
       {/* 合集列表 */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">我的合集</h2>
+      <div className="mb-4 sm:mb-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800">我的合集</h2>
           <button
             onClick={() => setShowCreate(true)}
             className="flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 font-medium"
@@ -155,15 +155,15 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {collections.map(collection => (
               <Link
                 key={collection.id}
                 to={`/collection/${collection.id}`}
-                className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-lg transition-all hover:-translate-y-0.5 group"
+                className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 hover:shadow-lg transition-all hover:-translate-y-0.5 group"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-bold text-gray-800 text-lg truncate flex-1">
+                <div className="flex items-start justify-between mb-2 sm:mb-3">
+                  <h3 className="font-bold text-gray-800 text-base sm:text-lg truncate flex-1">
                     {collection.name}
                   </h3>
                   <button
