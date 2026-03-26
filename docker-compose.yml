@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # ============ 后端服务 ============
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: emoji-share-server
+    restart: always
+    environment:
+      - PORT=3001
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+    networks:
+      - emoji-net
+
+  # ============ 前端服务（Nginx） ============
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: emoji-share-client
+    restart: always
+    ports:
+      - "81:80"
+    depends_on:
+      - server
+    networks:
+      - emoji-net
+
+networks:
+  emoji-net:
+    driver: bridge
+

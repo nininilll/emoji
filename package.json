@@ -1,0 +1,15 @@
+{
+  "name": "emoji-share",
+  "version": "1.0.0",
+  "description": "表情包批量搬家助手 - 跨平台表情包迁移工具",
+  "private": true,
+  "scripts": {
+    "dev:server": "cd server && node index.js",
+    "dev:client": "cd client && npx vite --host",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
