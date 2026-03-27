@@ -385,7 +385,9 @@ app.post('/api/collections/:collectionId/emojis', authMiddleware, upload.array('
     const newEmojis = [];
     for (const file of req.files) {
       const emojiId = uuidv4().slice(0, 8);
-      const ext = path.extname(file.originalname);
+      // 修复 multer 中文文件名编码：Latin-1 -> UTF-8
+      const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+      const ext = path.extname(originalName);
       const minioKey = `emoji/${req.user.id}/${collectionId}/${emojiId}${ext}`;
 
       // 上传到 MinIO
@@ -394,13 +396,13 @@ app.post('/api/collections/:collectionId/emojis', authMiddleware, upload.array('
       // 写入数据库
       await pool.execute(
         'INSERT INTO emojis (id, collection_id, filename, original_name, size, mimetype, minio_key, url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [emojiId, collectionId, `${emojiId}${ext}`, file.originalname, file.size, file.mimetype, minioKey, url]
+        [emojiId, collectionId, `${emojiId}${ext}`, originalName, file.size, file.mimetype, minioKey, url]
       );
 
       newEmojis.push({
         id: emojiId,
         filename: `${emojiId}${ext}`,
-        original_name: file.originalname,
+        original_name: originalName,
         size: file.size,
         mimetype: file.mimetype,
         minio_key: minioKey,
