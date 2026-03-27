@@ -383,12 +383,17 @@ app.post('/api/collections/:collectionId/emojis', authMiddleware, upload.array('
     }
 
     const newEmojis = [];
-    for (const file of req.files) {
+    // 生成时间戳前缀 如 20260327
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+
+    for (let i = 0; i < req.files.length; i++) {
+      const file = req.files[i];
       const emojiId = uuidv4().slice(0, 8);
-      // 修复 multer 中文文件名编码：Latin-1 -> UTF-8
-      const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
-      const ext = path.extname(originalName);
+      const ext = path.extname(file.originalname) || '.png';
       const minioKey = `emoji/${req.user.id}/${collectionId}/${emojiId}${ext}`;
+      // 显示名：时间戳_序号.扩展名，如 20260327_001.jpg
+      const displayName = `${dateStr}_${String(i + 1).padStart(3, '0')}${ext}`;
 
       // 上传到 MinIO
       const url = await uploadToMinio(file.buffer, minioKey, file.mimetype);
@@ -396,13 +401,13 @@ app.post('/api/collections/:collectionId/emojis', authMiddleware, upload.array('
       // 写入数据库
       await pool.execute(
         'INSERT INTO emojis (id, collection_id, filename, original_name, size, mimetype, minio_key, url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [emojiId, collectionId, `${emojiId}${ext}`, originalName, file.size, file.mimetype, minioKey, url]
+        [emojiId, collectionId, `${emojiId}${ext}`, displayName, file.size, file.mimetype, minioKey, url]
       );
 
       newEmojis.push({
         id: emojiId,
         filename: `${emojiId}${ext}`,
-        original_name: originalName,
+        original_name: displayName,
         size: file.size,
         mimetype: file.mimetype,
         minio_key: minioKey,
