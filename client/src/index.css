@@ -54,3 +54,41 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
+/* 移动端优化 */
+@media (max-width: 639px) {
+  /* 禁止移动端 hover 效果引起的抖动 */
+  .guide-card:hover {
+    transform: none;
+  }
+  .emoji-grid-item:hover {
+    transform: none;
+  }
+
+  /* 移动端弹窗底部弹出动画 */
+  .fixed.inset-0 > div {
+    animation: slideUp 0.25s ease-out;
+  }
+
+  /* 移动端点击态优化 */
+  button:active, a:active {
+    opacity: 0.7;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* 安全区域适配（刘海屏等） */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .min-h-screen {
+    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
