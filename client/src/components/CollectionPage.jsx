@@ -26,6 +26,26 @@ export default function CollectionPage() {
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [confirmDownload, setConfirmDownload] = useState(false)
 
+  // 通过 fetch+blob 方式下载文件（解决跨域 <a download> 不触发下载的问题）
+  async function downloadFile(url, filename) {
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(blobUrl)
+    } catch (err) {
+      console.error('下载失败:', err)
+      // 降级：直接打开链接
+      window.open(url, '_blank')
+    }
+  }
+
   useEffect(() => {
     loadCollection()
   }, [id])
@@ -207,13 +227,13 @@ export default function CollectionPage() {
               分享
             </button>
             {collection.emojis.length > 0 && (
-              <a
-                href={getDownloadUrl(id)}
+              <button
+                onClick={() => setConfirmDownload(true)}
                 className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
               >
                 <Download className="w-4 h-4" />
                 全部下载
-              </a>
+              </button>
             )}
             <button
               onClick={handleDeleteCollection}
@@ -234,13 +254,13 @@ export default function CollectionPage() {
             分享
           </button>
           {collection.emojis.length > 0 && (
-            <a
-              href={getDownloadUrl(id)}
+            <button
+              onClick={() => setConfirmDownload(true)}
               className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
               下载
-            </a>
+            </button>
           )}
           <button
             onClick={handleDeleteCollection}
@@ -357,15 +377,13 @@ export default function CollectionPage() {
                 {/* 操作按钮 */}
                 {!selectMode && (
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100">
-                    <a
-                      href={emoji.url}
-                      download={emoji.original_name || emoji.filename}
-                      onClick={e => e.stopPropagation()}
+                    <button
+                      onClick={e => { e.stopPropagation(); downloadFile(emoji.url, emoji.original_name || emoji.filename) }}
                       className="p-1.5 bg-white/90 rounded-lg hover:bg-green-50 text-gray-600 hover:text-green-500 transition-colors"
                       title="下载"
                     >
                       <Download className="w-3.5 h-3.5" />
-                    </a>
+                    </button>
                     <button
                       onClick={e => { e.stopPropagation(); setConfirmDelete(emoji) }}
                       className="p-1.5 bg-white/90 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-500 transition-colors"
@@ -409,14 +427,13 @@ export default function CollectionPage() {
               </div>
               <p className="text-sm text-gray-500 mb-3 truncate max-w-full">{previewEmoji.original_name}</p>
               <div className="flex items-center gap-2">
-                <a
-                  href={previewEmoji.url}
-                  download={previewEmoji.original_name || previewEmoji.filename}
+                <button
+                  onClick={() => downloadFile(previewEmoji.url, previewEmoji.original_name || previewEmoji.filename)}
                   className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
                 >
                   <Download className="w-4 h-4" />
                   下载
-                </a>
+                </button>
                 <button
                   onClick={() => { setConfirmDelete(previewEmoji); setPreviewEmoji(null) }}
                   className="flex items-center gap-1.5 px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition-colors"
@@ -459,6 +476,39 @@ export default function CollectionPage() {
               >
                 确认删除
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 下载确认弹窗 */}
+      {confirmDownload && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setConfirmDownload(false)}>
+          <div className="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="text-center mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Package className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="font-bold text-gray-800 mb-1">下载全部表情包</h3>
+              <p className="text-sm text-gray-500">
+                将打包下载 {collection.emojis.length} 个表情包为 ZIP 压缩文件
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmDownload(false)}
+                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors"
+              >
+                取消
+              </button>
+              <a
+                href={getDownloadUrl(id)}
+                onClick={() => setConfirmDownload(false)}
+                className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                确认下载
+              </a>
             </div>
           </div>
         </div>
